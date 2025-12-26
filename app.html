@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orçamento de Reconstrução - Rio Tinto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gold: #D4AF37;
+            --dark-navy: #0A1128;
+            --soft-gray: #F5F5F0;
+            --accent-copper: #B87333;
+            --text-primary: #1A1A1A;
+            --text-secondary: #666666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, var(--soft-gray) 0%, #E8E8E0 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header Premium */
+        .header {
+            background: linear-gradient(135deg, var(--dark-navy) 0%, #1a2744 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            display: inline-block;
+            background: var(--primary-gold);
+            color: var(--dark-navy);
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            animation: slideInLeft 0.6s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            animation: slideInRight 0.6s ease-out 0.2s both;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .header-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-gold);
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .info-box:nth-child(1) { animation-delay: 0.3s; }
+        .info-box:nth-child(2) { animation-delay: 0.4s; }
+        .info-box:nth-child(3) { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-box h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary-gold);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .info-box p {
+            font-size: 16px;
+            font-weight: 300;
+        }
+
+        /* Client Section */
+        .client-section {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out 0.6s both;
+        }
+
+        .client-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .client-info h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: var(--dark-navy);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary-gold);
+        }
+
+        .detail-item {
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .detail-item::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--primary-gold);
+            font-weight: bold;
+        }
+
+        .detail-item strong {
+            color: var(--dark-navy);
+            font-weight: 600;
+        }
+
+        /* Budget Sections */
+        .budget-section {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .budget-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+        }
+
+        .budget-section:nth-child(7) { animation-delay: 0.7s; }
+        .budget-section:nth-child(8) { animation-delay: 0.8s; }
+        .budget-section:nth-child(9) { animation-delay: 0.9s; }
+        .budget-section:nth-child(10) { animation-delay: 1s; }
+        .budget-section:nth-child(11) { animation-delay: 1.1s; }
+        .budget-section:nth-child(12) { animation-delay: 1.2s; }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--soft-gray);
+        }
+
+        .section-number {
+            background: var(--primary-gold);
+            color: var(--dark-navy);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .section-title {
+            flex: 1;
+            margin-left: 20px;
+        }
+
+        .section-title h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: var(--dark-navy);
+            margin-bottom: 5px;
+        }
+
+        .section-total {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-gold);
+            text-align: right;
+        }
+
+        .budget-items {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .budget-item {
+            padding: 20px;
+            background: var(--soft-gray);
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-copper);
+            transition: all 0.3s ease;
+        }
+
+        .budget-item:hover {
+            background: #E8E8E0;
+            border-left-width: 6px;
+            transform: translateX(5px);
+        }
+
+        .item-title {
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--dark-navy);
+            margin-bottom: 8px;
+        }
+
+        .item-description {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .item-calculation {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .calc-badge {
+            background: var(--dark-navy);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            background: linear-gradient(135deg, var(--dark-navy) 0%, #1a2744 100%);
+            color: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out 1.3s both;
+        }
+
+        .summary-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--primary-gold);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .summary-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .summary-item:hover {
+            border-color: var(--primary-gold);
+            transform: translateY(-5px);
+        }
+
+        .summary-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            color: var(--primary-gold);
+        }
+
+        .summary-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .total-highlight {
+            grid-column: 1 / -1;
+            background: var(--primary-gold);
+            color: var(--dark-navy);
+            padding: 35px;
+            border: none;
+        }
+
+        .total-highlight .summary-label {
+            color: var(--dark-navy);
+            font-size: 16px;
+        }
+
+        .total-highlight .summary-value {
+            color: var(--dark-navy);
+            font-size: 48px;
+        }
+
+        /* Payment Section */
+        .payment-section {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out 1.4s both;
+        }
+
+        .payment-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: var(--dark-navy);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .payment-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .payment-step {
+            display: flex;
+            gap: 20px;
+            padding: 25px;
+            background: var(--soft-gray);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .payment-step:hover {
+            background: #E8E8E0;
+            transform: translateX(5px);
+        }
+
+        .payment-step::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 6px;
+            height: 100%;
+            background: var(--primary-gold);
+        }
+
+        .step-number {
+            background: var(--dark-navy);
+            color: var(--primary-gold);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            font-size: 20px;
+            color: var(--dark-navy);
+            margin-bottom: 8px;
+        }
+
+        .step-percentage {
+            display: inline-block;
+            background: var(--primary-gold);
+            color: var(--dark-navy);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .step-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Notes Section */
+        .notes-section {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFF5D6 100%);
+            padding: 40px;
+            border-radius: 16px;
+            border: 2px solid var(--primary-gold);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out 1.5s both;
+        }
+
+        .notes-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: var(--dark-navy);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notes-section h2::before {
+            content: '⚠';
+            font-size: 32px;
+            color: var(--primary-gold);
+        }
+
+        .note-item {
+            padding: 15px 15px 15px 30px;
+            margin-bottom: 12px;
+            position: relative;
+            color: var(--text-primary);
+        }
+
+        .note-item::before {
+            content: '•';
+            position: absolute;
+            left: 10px;
+            color: var(--primary-gold);
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark-navy);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            animation: fadeInUp 0.6s ease-out 1.6s both;
+        }
+
+        .footer h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--primary-gold);
+        }
+
+        .signature-line {
+            width: 300px;
+            margin: 30px auto;
+            border-top: 2px solid var(--primary-gold);
+            padding-top: 15px;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .section-title {
+                margin-left: 0;
+                margin-top: 15px;
+            }
+
+            .section-total {
+                text-align: center;
+                margin-top: 10px;
+            }
+
+            .summary-value {
+                font-size: 24px;
+            }
+
+            .total-highlight .summary-value {
+                font-size: 36px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .budget-section, .client-section, .payment-section, .notes-section {
+                page-break-inside: avoid;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">CONEX</div>
+                <h1>Orçamento de Reconstrução Integral</h1>
+                <div class="header-info">
+                    <div class="info-box">
+                        <h3>Referência</h3>
+                        <p>PR2025-12-LUIS</p>
+                    </div>
+                    <div class="info-box">
+                        <h3>Data de Emissão</h3>
+                        <p>26 de Dezembro de 2025</p>
+                    </div>
+                    <div class="info-box">
+                        <h3>Validade</h3>
+                        <p>30 dias (Até 25 de Janeiro de 2026)</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Client Information -->
+        <section class="client-section">
+            <div class="client-grid">
+                <div class="client-info">
+                    <h2>Dados do Cliente</h2>
+                    <div class="detail-item">
+                        <strong>Nome:</strong> Luís
+                    </div>
+                    <div class="detail-item">
+                        <strong>Local da Obra:</strong> Rua D. Afonso Henriques, Rio Tinto
+                    </div>
+                </div>
+                <div class="client-info">
+                    <h2>Dados dos Responsáveis</h2>
+                    <div class="detail-item">
+                        <strong>José Rodrigues:</strong> 925 361 300
+                    </div>
+                    <div class="detail-item">
+                        <strong>Cláudio Lopes:</strong> 933 820 050
+                    </div>
+                    <div class="detail-item">
+                        <strong>E-mail:</strong> conex.pt@gmail.com
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Budget Section 1 -->
+        <section class="budget-section">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <div class="section-title">
+                    <h2>Demolições e Preparação</h2>
+                </div>
+                <div class="section-total">5.700,00 €</div>
+            </div>
+            <div class="budget-items">
+                <div class="budget-item">
+                    <div class="item-title">Demolição Técnica</div>
+                    <div class="item-description">
+                        Remoção de todas as alvenarias, rebocos e estruturas comprometidas pela ação do fogo e da temperatura. Inclui limpeza e remoção manual.
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Gestão de Resíduos</div>
+                    <div class="item-description">
+                        Transporte de entulhos para vazadouro licenciado, incluindo taxas de aterro e emissão das respetivas guias de RCD (Resíduos de Construção e Demolição).
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Budget Section 2 -->
+        <section class="budget-section">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <div class="section-title">
+                    <h2>Estrutura e Alvenarias</h2>
+                </div>
+                <div class="section-total">10.687,00 €</div>
+            </div>
+            <div class="budget-items">
+                <div class="budget-item">
+                    <div class="item-title">Lajes de Betão</div>
+                    <div class="item-description">
+                        Execução de nova laje de piso/cobertura em betão armado, incluindo cofragem, armadura de aço e cura do betão.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Cálculo</span>
+                        <span>33 m² × 140,00 €/m² = 4.620,00 €</span>
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Contrapiso</div>
+                    <div class="item-description">
+                        Aplicação de contrapiso (betonilha) para regularização de pavimentos.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Cálculo</span>
+                        <span>115 m² × 18,50 €/m² = 2.127,50 €</span>
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Rebocos</div>
+                    <div class="item-description">
+                        Aplicação de reboco hidrófugo para proteção contra humidade em paredes estruturais.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Cálculo</span>
+                        <span>40 m² × 22,50 €/m² = 900,00 €</span>
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Paredes em Pladur</div>
+                    <div class="item-description">
+                        Divisórias interiores com estrutura metálica, placas de gesso cartonado e isolamento termoacústico mineral.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Cálculo</span>
+                        <span>80 m² × 38,00 €/m² = 3.040,00 €</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Budget Section 3 -->
+        <section class="budget-section">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <div class="section-title">
+                    <h2>Redes e Especialidades</h2>
+                </div>
+                <div class="section-total">8.200,00 €</div>
+            </div>
+            <div class="budget-items">
+                <div class="budget-item">
+                    <div class="item-title">Instalação Elétrica e ITED</div>
+                    <div class="item-description">
+                        Rede total nova, incluindo quadro elétrico, circuitos de tomadas, interruptores, iluminação e infraestrutura de telecomunicações.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Valor Global</span>
+                        <span>4.200,00 €</span>
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Canalizações e Esgotos</div>
+                    <div class="item-description">
+                        Redes de abastecimento de água em multicamada e esgotos em PVC, incluindo ligações aos ramais públicos para 1 Cozinha e 2 WCs.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Valor Global</span>
+                        <span>4.000,00 €</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Budget Section 4 -->
+        <section class="budget-section">
+            <div class="section-header">
+                <div class="section-number">4</div>
+                <div class="section-title">
+                    <h2>Isolamentos e Revestimentos</h2>
+                </div>
+                <div class="section-total">22.881,00 €</div>
+            </div>
+            <div class="budget-items">
+                <div class="budget-item">
+                    <div class="item-title">Sistema Capoto (ETICS)</div>
+                    <div class="item-description">
+                        Isolamento térmico pelo exterior com espessura de 60mm. Argamassa de colagem e barramento, rede de fibra de vidro anti-alcalina, buchas de fixação e perfis de arranque, primário e massa de acabamento areado.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Cálculo</span>
+                        <span>90 m² × 55,00 €/m² = 4.950,00 €</span>
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Tetos Falsos</div>
+                    <div class="item-description">
+                        Estrutura metálica com placas de gesso cartonado (Pladur) e isolamento em lã mineral.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Cálculo</span>
+                        <span>135 m² × 45,00 €/m² = 6.075,00 €</span>
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Pladur Ómega</div>
+                    <div class="item-description">
+                        Revestimento e regularização de paredes internas com estrutura ômega.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Cálculo</span>
+                        <span>133 m² × 32,00 €/m² = 4.256,00 €</span>
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Pavimentos e Revestimentos</div>
+                    <div class="item-description">
+                        Fornecimento e assentamento de pavimento cerâmico ou flutuante e azulejos em zonas húmidas.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Pavimento</span>
+                        <span>115 m² × 45,00 €/m² = 5.175,00 €</span>
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Revestimento</span>
+                        <span>40 m² × 45,00 €/m² = 1.800,00 €</span>
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Rodapés</div>
+                    <div class="item-description">
+                        Execução de acabamento perimetral linear em madeira.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Cálculo</span>
+                        <span>100 ml × 13,00 €/ml = 1.300,00 €</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Budget Section 5 -->
+        <section class="budget-section">
+            <div class="section-header">
+                <div class="section-number">5</div>
+                <div class="section-title">
+                    <h2>Estrutura Metálica, Cobertura e Fachada</h2>
+                </div>
+                <div class="section-total">11.872,50 €</div>
+            </div>
+            <div class="budget-items">
+                <div class="budget-item">
+                    <div class="item-title">Estrutura de Suporte</div>
+                    <div class="item-description">
+                        Tubagem de aço 80x80x2mm, incluindo cortes, soldaduras, tratamento anticorrosivo e fixação.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Cálculo</span>
+                        <span>250 ml × 16,75 €/ml = 4.187,50 €</span>
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Cobertura em Painel Sanduíche</div>
+                    <div class="item-description">
+                        Modelo 5 ondas, cor vermelha, 30mm de isolamento.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Cálculo</span>
+                        <span>80 m² × 44,00 €/m² = 3.520,00 €</span>
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Painel de Fachada</div>
+                    <div class="item-description">
+                        Sanduíche 30mm modelo B1006.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Cálculo</span>
+                        <span>70 m² × 38,00 €/m² = 2.660,00 €</span>
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Remates e Escoamento</div>
+                    <div class="item-description">
+                        Rufos de cumeeira, remates laterais, caleiras e tubos de queda.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Valor Global</span>
+                        <span>1.505,00 €</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Budget Section 6 -->
+        <section class="budget-section">
+            <div class="section-header">
+                <div class="section-number">6</div>
+                <div class="section-title">
+                    <h2>Carpintarias, Vãos, Equipamento e Pintura</h2>
+                </div>
+                <div class="section-total">12.650,00 €</div>
+            </div>
+            <div class="budget-items">
+                <div class="budget-item">
+                    <div class="item-title">Vãos Exteriores</div>
+                    <div class="item-description">
+                        Janelas e portas em PVC com rotura térmica e vidro duplo.
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Vãos e Caixilharia de Madeira</div>
+                    <div class="item-description">
+                        Fornecimento e montagem de portas interiores, respetivas guarnições e caixilharias em madeira.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Valor Global</span>
+                        <span>3.200,00 €</span>
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Cozinha e WC</div>
+                    <div class="item-description">
+                        Fornecimento e montagem de mobiliário de cozinha e loiças sanitárias (2 WCs).
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Valor Global</span>
+                        <span>3.600,00 €</span>
+                    </div>
+                </div>
+                <div class="budget-item">
+                    <div class="item-title">Pintura</div>
+                    <div class="item-description">
+                        Pintura geral a três demãos de tinta plástica de alta qualidade após primário selante.
+                    </div>
+                    <div class="item-calculation">
+                        <span class="calc-badge">Cálculo</span>
+                        <span>450 m² × 13,00 €/m² = 5.850,00 €</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary Section -->
+        <section class="summary-section">
+            <h2>Resumo Final de Valores</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Total Líquido (Sem IVA)</div>
+                    <div class="summary-value">66.290,50 €</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">IVA (Taxa de 6% - Reabilitação Urbana)</div>
+                    <div class="summary-value">3.977,43 €</div>
+                </div>
+                <div class="summary-item total-highlight">
+                    <div class="summary-label">Valor Total com IVA</div>
+                    <div class="summary-value">70.267,93 €</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment Section -->
+        <section class="payment-section">
+            <h2>Condições de Pagamento (Modelo 50% Entrada)</h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">
+                O plano de pagamentos foi estruturado para garantir o fornecimento imediato de todos os materiais de revestimento e estrutura.
+            </p>
+            <div class="payment-timeline">
+                <div class="payment-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">
+                            Adjudicação e Início de Obra (Sinal)
+                            <span class="step-percentage">50%</span>
+                        </div>
+                        <div class="step-description">
+                            Destinado à mobilização de equipas, demolições e compra integral de materiais estruturais, painéis sanduíche e caixilharias.
+                        </div>
+                    </div>
+                </div>
+                <div class="payment-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">
+                            Conclusão de Especialidades e Rebocos
+                            <span class="step-percentage">25%</span>
+                        </div>
+                        <div class="step-description">
+                            Efetuado após a conclusão das redes de eletricidade, águas e fechamento de paredes.
+                        </div>
+                    </div>
+                </div>
+                <div class="payment-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">
+                            Conclusão de Revestimentos e Pinturas
+                            <span class="step-percentage">15%</span>
+                        </div>
+                        <div class="step-description">
+                            Efetuado após a aplicação de chãos, azulejos e início dos trabalhos de pintura.
+                        </div>
+                    </div>
+                </div>
+                <div class="payment-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-title">
+                            Entrega da Obra (Finalização)
+                            <span class="step-percentage">10%</span>
+                        </div>
+                        <div class="step-description">
+                            Liquidado após a vistoria final e entrega da chave ao cliente.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notes Section -->
+        <section class="notes-section">
+            <h2>Observações Finais</h2>
+            <div class="note-item">
+                Todos os preços incluem material e mão de obra.
+            </div>
+            <div class="note-item">
+                Qualquer trabalho extra não discriminado será objeto de orçamento adicional.
+            </div>
+            <div class="note-item">
+                A validade desta proposta é de 30 dias devido à instabilidade de preços das matérias-primas (aço e isolantes).
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <h3>Assinatura dos Responsáveis</h3>
+            <div class="signature-line">
+                CONEX - Soluções Imobiliárias
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add hover effects to budget items
+        const budgetItems = document.querySelectorAll('.budget-item');
+        budgetItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(5px)';
+            });
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0)';
+            });
+        });
+
+        // Intersection Observer for animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.budget-section, .payment-step').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Print functionality
+        function printDocument() {
+            window.print();
+        }
+
+        // Add print button dynamically
+        const printButton = document.createElement('button');
+        printButton.innerHTML = '🖨️ Imprimir Orçamento';
+        printButton.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--primary-gold);
+            color: var(--dark-navy);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        `;
+        printButton.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+            this.style.boxShadow = '0 15px 40px rgba(212, 175, 55, 0.4)';
+        });
+        printButton.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 10px 30px rgba(212, 175, 55, 0.3)';
+        });
+        printButton.addEventListener('click', printDocument);
+        document.body.appendChild(printButton);
+    </script>
+</body>
+</html>
