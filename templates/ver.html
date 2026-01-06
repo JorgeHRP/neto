@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-file-invoice"></i> Orçamento {{ orcamento.numero }}</h2>
+    <div>
+        <button onclick="gerarPDF()" class="btn btn-primary">
+            <i class="fas fa-file-pdf"></i> Gerar PDF
+        </button>
+        <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">Voltar</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Dados -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="mb-3">Dados do Cliente</h5>
+                <p><strong>Nome:</strong> {{ orcamento.nome_cliente }}</p>
+                <p><strong>Telefone:</strong> {{ orcamento.telefone or '-' }}</p>
+                <p><strong>Local da Obra:</strong> {{ orcamento.local_obra or '-' }}</p>
+            </div>
+        </div>
+
+        <!-- Blocos e Itens -->
+        {% set blocos_agrupados = {} %}
+        {% for item in orcamento.itens %}
+            {% set bloco = item.bloco %}
+            {% if bloco not in blocos_agrupados %}
+                {% set _ = blocos_agrupados.update({bloco: []}) %}
+            {% endif %}
+            {% set _ = blocos_agrupados[bloco].append(item) %}
+        {% endfor %}
+
+        {% for bloco, itens in blocos_agrupados.items() %}
+        <div class="card mb-4">
+            <div class="card-header" style="background: linear-gradient(135deg, #0A1128 0%, #1a2744 100%); color: white;">
+                <h5 class="mb-0">{{ bloco }}</h5>
+            </div>
+            <div class="card-body">
+                {% for item in itens %}
+                <div class="mb-3 p-3 bg-light rounded" style="border-left: 4px solid #D4AF37;">
+                    <div class="d-flex justify-content-between">
+                        <div style="flex: 1;">
+                            <strong>{{ item.nome }}</strong>
+                            {% if item.desc %}
+                            <br><small class="text-muted">{{ item.desc }}</small>
+                            {% endif %}
+                            {% if item.calc %}
+                            <br><small class="text-primary"><i class="fas fa-calculator"></i> {{ item.calc }}</small>
+                            {% endif %}
+                        </div>
+                        <h5 class="mb-0 text-success">€ {{ "%.2f"|format(item.valor) }}</h5>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="text-end mt-3">
+                    <strong>Total do Bloco: <span class="text-success">€ {{ "{:,.2f}".format(itens | sum(attribute='valor')) }}</span></strong>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Resumo -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="mb-3">Resumo</h5>
+                <p>Subtotal: <strong>€ {{ "%.2f"|format(orcamento.total) }}</strong></p>
+                <p>IVA ({{ orcamento.iva }}%): <strong>€ {{ "%.2f"|format(orcamento.total_com_iva - orcamento.total) }}</strong></p>
+                <hr>
+                <h4>Total: <span class="text-success">€ {{ "%.2f"|format(orcamento.total_com_iva) }}</span></h4>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+const orcamento = {{ orcamento | tojson | safe }};
+
+function gerarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    const gold = [212, 175, 55];
+    const navy = [10, 17, 40];
+    const gray = [102, 102, 102];
+    const lightGray = [245, 245, 240];
+    
+    let yPos = 20;
+    const margin = 15;
+    const pageWidth = 210;
+    const contentWidth = pageWidth - (margin * 2);
+    
+    function checkPageBreak(needed) {
+        if (yPos + needed > 280) {
+            doc.addPage();
+            yPos = 20;
+        }
+    }
+    
+    // CABEÇALHO PREMIUM
+    doc.setFillColor(...navy);
+    doc.rect(0, 0, pageWidth, 60, 'F');
+    
+    // Logo
+    doc.setFillColor(...gold);
+    doc.roundedRect(margin, 10, 30, 12, 2, 2, 'F');
+    doc.setTextColor(...navy);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('ORÇAMENTO', margin + 15, 17, { align: 'center' });
+    
+    // Título
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Orçamento de Construção', margin, 32);
+    
+    // Info boxes
+    doc.setFontSize(8);
+    doc.setTextColor(...gold);
+    doc.text('REFERÊNCIA', margin, 42);
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    doc.text(orcamento.numero, margin, 47);
+    
+    doc.setFontSize(8);
+    doc.setTextColor(...gold);
+    doc.text('DATA', margin + 60, 42);
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    const hoje = new Date().toLocaleDateString('pt-PT');
+    doc.text(hoje, margin + 60, 47);
+    
+    yPos = 70;
+    
+    // DADOS DO CLIENTE
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(margin, yPos, contentWidth, 30, 3, 3, 'F');
+    
+    doc.setTextColor(...navy);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Dados do Cliente', margin + 5, yPos + 8);
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...gray);
+    doc.text(`• Nome: ${orcamento.nome_cliente}`, margin + 5, yPos + 16);
+    if (orcamento.telefone) {
+        doc.text(`• Telefone: ${orcamento.telefone}`, margin + 5, yPos + 22);
+    }
+    if (orcamento.local_obra) {
+        doc.text(`• Local: ${orcamento.local_obra}`, margin + 5, yPos + (orcamento.telefone ? 28 : 22));
+    }
+    
+    yPos += 40;
+    
+    // AGRUPAR ITENS POR BLOCO
+    const blocos = {};
+    orcamento.itens.forEach(item => {
+        if (!blocos[item.bloco]) {
+            blocos[item.bloco] = [];
+        }
+        blocos[item.bloco].push(item);
+    });
+    
+    // BLOCOS
+    let blocoNum = 1;
+    for (const [blocoNome, itens] of Object.entries(blocos)) {
+        checkPageBreak(50);
+        
+        // Header do Bloco
+        doc.setFillColor(255, 255, 255);
+        doc.roundedRect(margin, yPos, contentWidth, 15, 3, 3, 'F');
+        
+        doc.setFillColor(...gold);
+        doc.circle(margin + 7, yPos + 7.5, 6, 'F');
+        doc.setTextColor(...navy);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(blocoNum.toString(), margin + 7, yPos + 9.5, { align: 'center' });
+        
+        doc.setFontSize(13);
+        doc.text(blocoNome, margin + 18, yPos + 9);
+        
+        // Total do bloco
+        const totalBloco = itens.reduce((sum, item) => sum + item.valor, 0);
+        doc.setTextColor(...gold);
+        doc.setFontSize(13);
+        doc.text(`€ ${totalBloco.toFixed(2)}`, pageWidth - margin - 5, yPos + 9, { align: 'right' });
+        
+        yPos += 20;
+        
+        // Itens do bloco
+        itens.forEach(item => {
+            const estimatedHeight = 15 + (item.desc ? 10 : 0) + (item.calc ? 5 : 0);
+            checkPageBreak(estimatedHeight);
+            
+            let currentY = yPos;
+            
+            // Background do item
+            doc.setFillColor(...lightGray);
+            let itemHeight = 12;
+            if (item.desc) itemHeight += 8;
+            if (item.calc) itemHeight += 5;
+            doc.roundedRect(margin, currentY, contentWidth, itemHeight, 2, 2, 'F');
+            
+            // Título
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...navy);
+            doc.text(item.nome, margin + 3, currentY + 6);
+            currentY += 6;
+            
+            // Descrição
+            if (item.desc) {
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(...gray);
+                const descLines = doc.splitTextToSize(item.desc, contentWidth - 10);
+                doc.text(descLines, margin + 3, currentY + 3);
+                currentY += (descLines.length * 4);
+            }
+            
+            // Cálculo
+            if (item.calc) {
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'italic');
+                doc.setTextColor(70, 130, 180);
+                doc.text(`${item.calc}`, margin + 3, currentY + 3);
+                currentY += 4;
+            }
+            
+            // Valor
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...gold);
+            doc.text(`€ ${item.valor.toFixed(2)}`, pageWidth - margin - 3, currentY - 2, { align: 'right' });
+            
+            yPos += itemHeight + 3;
+        });
+        
+        yPos += 5;
+        blocoNum++;
+    }
+    
+    // RESUMO FINAL
+    checkPageBreak(50);
+    
+    doc.setFillColor(...navy);
+    doc.roundedRect(margin, yPos, contentWidth, 45, 3, 3, 'F');
+    
+    doc.setTextColor(...gold);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Resumo de Valores', pageWidth / 2, yPos + 10, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Subtotal (Sem IVA):', margin + 15, yPos + 22);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`€ ${orcamento.total.toFixed(2)}`, margin + 15, yPos + 28);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`IVA (${orcamento.iva}%):`, margin + 75, yPos + 22);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`€ ${(orcamento.total_com_iva - orcamento.total).toFixed(2)}`, margin + 75, yPos + 28);
+    
+    // Total destacado
+    doc.setFillColor(...gold);
+    doc.roundedRect(margin + 135, yPos + 18, 45, 18, 2, 2, 'F');
+    doc.setTextColor(...navy);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('TOTAL', margin + 157.5, yPos + 24, { align: 'center' });
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`€ ${orcamento.total_com_iva.toFixed(2)}`, margin + 157.5, yPos + 31, { align: 'center' });
+    
+    // Salvar
+    doc.save(`Orcamento_${orcamento.numero}.pdf`);
+}
+</script>
+{% endblock %}

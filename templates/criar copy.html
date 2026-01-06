@@ -1,0 +1,422 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style>
+    .bloco-section {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 2px solid #e0e0e0;
+    }
+    .bloco-header {
+        background: linear-gradient(135deg, var(--dark) 0%, #1a2744 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content-between;
+        align-items-center;
+    }
+    .item-box {
+        background: #f8f9fa;
+        border-left: 4px solid #D4AF37;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-plus-circle"></i> Criar Orçamento</h2>
+
+<form method="POST" id="formOrcamento">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Dados -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Dados do Orçamento</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label>Número *</label>
+                            <input type="text" class="form-control" name="numero" placeholder="Ex: PR2025-001" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nome do Cliente *</label>
+                            <input type="text" class="form-control" name="nome_cliente" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Telefone</label>
+                            <input type="text" class="form-control" name="telefone">
+                        </div>
+                        <div class="col-md-6">
+                            <label>Local da Obra</label>
+                            <input type="text" class="form-control" name="local_obra">
+                        </div>
+                        <div class="col-md-3">
+                            <label>IVA (%)</label>
+                            <input type="number" class="form-control" name="iva" value="6" step="0.01" id="ivaInput">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blocos -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Blocos do Orçamento</h5>
+                        <button type="button" class="btn btn-sm btn-primary" onclick="adicionarBloco()">
+                            <i class="fas fa-plus"></i> Novo Bloco
+                        </button>
+                    </div>
+                    <div id="blocos-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumo -->
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h5 class="mb-3">Resumo</h5>
+                    <p>Subtotal: <strong id="subtotal">€ 0,00</strong></p>
+                    <p>IVA (<span id="iva-percent">6</span>%): <strong id="valor-iva">€ 0,00</strong></p>
+                    <hr>
+                    <h4>Total: <span class="text-success" id="total">€ 0,00</span></h4>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">
+                        <i class="fas fa-save"></i> Salvar Orçamento
+                    </button>
+                    <a href="{{ url_for('home') }}" class="btn btn-outline-secondary w-100 mt-2">Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="itens" id="itensJson">
+</form>
+
+<!-- Modal: Adicionar Item ao Bloco -->
+<div class="modal fade" id="modalItem" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adicionar Item ao Bloco</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs mb-3">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#tab-salvo">Usar Bloco Salvo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#tab-novo">Criar do Zero</a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content">
+                    <!-- Blocos Salvos -->
+                    <div class="tab-pane fade show active" id="tab-salvo">
+                        {% if blocos %}
+                        <div class="mb-3">
+                            <label>Selecione o Bloco Salvo *</label>
+                            <select class="form-select" id="blocoSelect" onchange="carregarBloco()">
+                                <option value="">Escolha um bloco...</option>
+                                {% for bloco in blocos %}
+                                <option value="{{ bloco.id }}" 
+                                        data-nome="{{ bloco.nome }}" 
+                                        data-unidade="{{ bloco.unidade }}" 
+                                        data-preco="{{ bloco.preco_unitario }}">
+                                    {{ bloco.nome }} ({{ bloco.unidade }}) - € {{ "%.2f"|format(bloco.preco_unitario) }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div id="blocoSalvoForm" style="display: none;">
+                            <div class="alert alert-info">
+                                <strong id="blocoNomeDisplay"></strong><br>
+                                <span id="blocoPrecoDisplay"></span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label>Quantidade *</label>
+                                <input type="number" class="form-control" id="blocoQuantidade" step="0.01" min="0" oninput="calcularValorBloco()">
+                                <small class="text-muted">Pode ser número inteiro ou decimal</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label>Valor Total Calculado</label>
+                                <input type="text" class="form-control" id="blocoValorCalculado" readonly>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label>Descrição</label>
+                                <textarea class="form-control" id="blocoDescricao" rows="3" placeholder="Adicione detalhes do serviço/material..."></textarea>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary" onclick="confirmarBlocoSalvo()">
+                                <i class="fas fa-plus"></i> Adicionar Item
+                            </button>
+                        </div>
+                        {% else %}
+                        <p class="text-muted">Nenhum bloco salvo. Vá em "Blocos Salvos" para criar ou use a aba "Criar do Zero".</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Criar do Zero -->
+                    <div class="tab-pane fade" id="tab-novo">
+                        <div class="mb-3">
+                            <label>Título do Item *</label>
+                            <input type="text" class="form-control" id="itemNome">
+                        </div>
+                        <div class="mb-3">
+                            <label>Descrição</label>
+                            <textarea class="form-control" id="itemDesc" rows="3" placeholder="Descrição do serviço/material..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label>Cálculo (opcional)</label>
+                            <input type="text" class="form-control" id="itemCalc" placeholder="Ex: 50 m² × 25,00 €/m²">
+                            <small class="text-muted">Exemplo de cálculo para mostrar no orçamento</small>
+                        </div>
+                        <div class="mb-3">
+                            <label>Valor Total (€) *</label>
+                            <input type="number" class="form-control" id="itemValor" step="0.01">
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="confirmarItemNovo()">
+                            <i class="fas fa-plus"></i> Adicionar Item
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+let blocos = [];
+let blocoAtual = null;
+let modal;
+let blocoSelecionado = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    modal = new bootstrap.Modal(document.getElementById('modalItem'));
+});
+
+function adicionarBloco() {
+    const titulo = prompt('Título do Bloco:', `Bloco ${blocos.length + 1}`);
+    if (!titulo) return;
+    
+    blocos.push({
+        titulo: titulo,
+        itens: []
+    });
+    renderBlocos();
+}
+
+function renderBlocos() {
+    const container = document.getElementById('blocos-container');
+    
+    if (blocos.length === 0) {
+        container.innerHTML = '<p class="text-muted text-center">Nenhum bloco. Clique em "Novo Bloco".</p>';
+        return;
+    }
+    
+    container.innerHTML = blocos.map((bloco, blocoIdx) => `
+        <div class="bloco-section">
+            <div class="bloco-header">
+                <div>
+                    <strong>${blocoIdx + 1}.</strong>
+                    <input type="text" value="${bloco.titulo}" 
+                           class="form-control form-control-sm d-inline-block bg-transparent text-white border-0" 
+                           style="width: auto; min-width: 200px;"
+                           onchange="blocos[${blocoIdx}].titulo = this.value">
+                </div>
+                <div>
+                    <button type="button" class="btn btn-sm btn-light" onclick="abrirModalItem(${blocoIdx})">
+                        <i class="fas fa-plus"></i> Item
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removerBloco(${blocoIdx})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            
+            ${bloco.itens.length === 0 ? '<p class="text-muted">Nenhum item neste bloco</p>' : 
+              bloco.itens.map((item, itemIdx) => `
+                <div class="item-box">
+                    <div class="d-flex justify-content-between">
+                        <div style="flex: 1;">
+                            <strong>${item.nome}</strong>
+                            ${item.desc ? `<br><small class="text-muted">${item.desc}</small>` : ''}
+                            ${item.calc ? `<br><small class="text-primary"><i class="fas fa-calculator"></i> ${item.calc}</small>` : ''}
+                        </div>
+                        <div class="text-end">
+                            <h5 class="mb-0 text-success">€ ${item.valor.toFixed(2)}</h5>
+                            <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="removerItem(${blocoIdx}, ${itemIdx})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+              `).join('')
+            }
+            
+            <div class="text-end mt-3">
+                <strong>Total do Bloco: <span class="text-success">€ ${calcularTotalBloco(bloco).toFixed(2)}</span></strong>
+            </div>
+        </div>
+    `).join('');
+    
+    calcularTotais();
+}
+
+function abrirModalItem(blocoIdx) {
+    blocoAtual = blocoIdx;
+    limparModal();
+    modal.show();
+}
+
+function carregarBloco() {
+    const select = document.getElementById('blocoSelect');
+    const option = select.options[select.selectedIndex];
+    
+    if (!option.value) {
+        document.getElementById('blocoSalvoForm').style.display = 'none';
+        return;
+    }
+    
+    blocoSelecionado = {
+        nome: option.dataset.nome,
+        unidade: option.dataset.unidade,
+        preco: parseFloat(option.dataset.preco)
+    };
+    
+    document.getElementById('blocoNomeDisplay').textContent = blocoSelecionado.nome;
+    document.getElementById('blocoPrecoDisplay').textContent = `€ ${blocoSelecionado.preco.toFixed(2)} por ${blocoSelecionado.unidade}`;
+    document.getElementById('blocoSalvoForm').style.display = 'block';
+    document.getElementById('blocoQuantidade').value = '';
+    document.getElementById('blocoValorCalculado').value = '';
+    document.getElementById('blocoDescricao').value = '';
+}
+
+function calcularValorBloco() {
+    if (!blocoSelecionado) return;
+    
+    const qtd = parseFloat(document.getElementById('blocoQuantidade').value) || 0;
+    const valor = qtd * blocoSelecionado.preco;
+    document.getElementById('blocoValorCalculado').value = `€ ${valor.toFixed(2)}`;
+}
+
+function confirmarBlocoSalvo() {
+    if (!blocoSelecionado) {
+        alert('Selecione um bloco!');
+        return;
+    }
+    
+    const qtd = parseFloat(document.getElementById('blocoQuantidade').value);
+    const desc = document.getElementById('blocoDescricao').value.trim();
+    
+    if (!qtd || qtd <= 0) {
+        alert('Informe a quantidade!');
+        return;
+    }
+    
+    const valor = qtd * blocoSelecionado.preco;
+    const calc = `${qtd} ${blocoSelecionado.unidade} × € ${blocoSelecionado.preco.toFixed(2)}`;
+    
+    blocos[blocoAtual].itens.push({
+        nome: blocoSelecionado.nome,
+        desc: desc,
+        calc: calc,
+        valor: valor
+    });
+    
+    renderBlocos();
+    modal.hide();
+}
+
+function confirmarItemNovo() {
+    const nome = document.getElementById('itemNome').value.trim();
+    const desc = document.getElementById('itemDesc').value.trim();
+    const calc = document.getElementById('itemCalc').value.trim();
+    const valor = parseFloat(document.getElementById('itemValor').value);
+    
+    if (!nome || !valor) {
+        alert('Preencha título e valor!');
+        return;
+    }
+    
+    blocos[blocoAtual].itens.push({ nome, desc, calc, valor });
+    renderBlocos();
+    modal.hide();
+}
+
+function limparModal() {
+    document.getElementById('blocoSelect').value = '';
+    document.getElementById('blocoSalvoForm').style.display = 'none';
+    document.getElementById('itemNome').value = '';
+    document.getElementById('itemDesc').value = '';
+    document.getElementById('itemCalc').value = '';
+    document.getElementById('itemValor').value = '';
+    blocoSelecionado = null;
+}
+
+function removerItem(blocoIdx, itemIdx) {
+    blocos[blocoIdx].itens.splice(itemIdx, 1);
+    renderBlocos();
+}
+
+function removerBloco(blocoIdx) {
+    if (confirm('Deletar este bloco?')) {
+        blocos.splice(blocoIdx, 1);
+        renderBlocos();
+    }
+}
+
+function calcularTotalBloco(bloco) {
+    return bloco.itens.reduce((sum, item) => sum + item.valor, 0);
+}
+
+function calcularTotais() {
+    const subtotal = blocos.reduce((sum, bloco) => sum + calcularTotalBloco(bloco), 0);
+    const ivaPercent = parseFloat(document.getElementById('ivaInput').value) || 0;
+    const valorIva = subtotal * (ivaPercent / 100);
+    const total = subtotal + valorIva;
+    
+    document.getElementById('subtotal').textContent = `€ ${subtotal.toFixed(2)}`;
+    document.getElementById('iva-percent').textContent = ivaPercent.toFixed(2);
+    document.getElementById('valor-iva').textContent = `€ ${valorIva.toFixed(2)}`;
+    document.getElementById('total').textContent = `€ ${total.toFixed(2)}`;
+}
+
+document.getElementById('ivaInput').addEventListener('input', calcularTotais);
+
+document.getElementById('formOrcamento').addEventListener('submit', function(e) {
+    if (blocos.length === 0) {
+        e.preventDefault();
+        alert('Adicione pelo menos um bloco!');
+        return;
+    }
+    
+    const itens = [];
+    blocos.forEach(bloco => {
+        bloco.itens.forEach(item => {
+            itens.push({
+                bloco: bloco.titulo,
+                nome: item.nome,
+                desc: item.desc || '',
+                calc: item.calc || '',
+                valor: item.valor
+            });
+        });
+    });
+    
+    document.getElementById('itensJson').value = JSON.stringify(itens);
+});
+</script>
+{% endblock %}

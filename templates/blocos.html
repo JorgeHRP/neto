@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-box"></i> Blocos Salvos</h2>
+
+<!-- Formulário para adicionar novo -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h5>Adicionar Novo Bloco</h5>
+        <form method="POST" action="{{ url_for('novo_bloco') }}" class="row g-3">
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="nome" placeholder="Nome" required>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" name="unidade" required>
+                    <option value="">Unidade...</option>
+                    <option value="m">m (metro)</option>
+                    <option value="m²">m² (metro quadrado)</option>
+                    <option value="m³">m³ (metro cúbico)</option>
+                    <option value="unidade">unidade</option>
+                    <option value="kg">kg (quilograma)</option>
+                    <option value="litro">litro</option>
+                    <option value="saco">saco</option>
+                    <option value="caixa">caixa</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="number" class="form-control" name="preco_unitario" step="0.01" placeholder="Preço (€)" required>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Lista de blocos -->
+{% if blocos %}
+<div class="row">
+    {% for bloco in blocos %}
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5>{{ bloco.nome }}</h5>
+                <p class="mb-1"><span class="badge bg-secondary">{{ bloco.unidade }}</span></p>
+                <p class="h4 text-success mb-3">€ {{ "%.2f"|format(bloco.preco_unitario) }}</p>
+                
+                <form method="POST" action="{{ url_for('deletar_bloco', id=bloco.id) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Deletar?')">
+                        <i class="fas fa-trash"></i> Deletar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <p class="text-muted">Nenhum bloco salvo ainda. Adicione acima.</p>
+</div>
+{% endif %}
+{% endblock %}

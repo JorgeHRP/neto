@@ -1,0 +1,10 @@
+app copy.py
+__pycache__/
+venv/
+.env
+instance/
+*.pyc
+.DS_Store
+migrations/
+*.sqlite3
+.venv/
