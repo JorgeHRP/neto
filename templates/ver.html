@@ -7,6 +7,9 @@
         <button onclick="gerarPDF()" class="btn btn-primary">
             <i class="fas fa-file-pdf"></i> Gerar PDF
         </button>
+        <a href="{{ url_for('editar_orcamento', id=orcamento.id) }}" class="btn btn-warning">
+            <i class="fas fa-edit"></i> Editar
+        </a>
         <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">Voltar</a>
     </div>
 </div>
@@ -191,9 +194,17 @@ function gerarPDF() {
         
         // Total do bloco
         const totalBloco = itens.reduce((sum, item) => sum + item.valor, 0);
-        doc.setTextColor(...gold);
-        doc.setFontSize(13);
-        doc.text(`€ ${totalBloco.toFixed(2)}`, pageWidth - margin - 5, yPos + 9, { align: 'right' });
+        if (totalBloco > 0) {
+            const totalBlocoStr = `€ ${totalBloco.toFixed(2)}`;
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...navy);
+            doc.text(totalBlocoStr, pageWidth - margin - 5, yPos + 9, { align: 'right' });
+            const txtW = doc.getTextWidth(totalBlocoStr);
+            doc.setDrawColor(...navy);
+            doc.setLineWidth(0.5);
+            doc.line(pageWidth - margin - 5 - txtW, yPos + 10.5, pageWidth - margin - 5, yPos + 10.5);
+        }
         
         yPos += 20;
         
@@ -206,18 +217,18 @@ function gerarPDF() {
             
             // Background do item
             doc.setFillColor(...lightGray);
-            let itemHeight = 12;
-            if (item.desc) itemHeight += 8;
+            let itemHeight = 15;
+            if (item.desc) itemHeight += 10;
             if (item.calc) itemHeight += 5;
             doc.roundedRect(margin, currentY, contentWidth, itemHeight, 2, 2, 'F');
-            
+
             // Título
             doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(...navy);
-            doc.text(item.nome, margin + 3, currentY + 6);
-            currentY += 6;
-            
+            doc.text(item.nome, margin + 3, currentY + 7);
+            currentY += 10;
+
             // Descrição
             if (item.desc) {
                 doc.setFontSize(8);
@@ -238,10 +249,12 @@ function gerarPDF() {
             }
             
             // Valor
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(...gold);
-            doc.text(`€ ${item.valor.toFixed(2)}`, pageWidth - margin - 3, currentY - 2, { align: 'right' });
+            if (item.valor > 0) {
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...gold);
+                doc.text(`€ ${item.valor.toFixed(2)}`, pageWidth - margin - 3, currentY - 2, { align: 'right' });
+            }
             
             yPos += itemHeight + 3;
         });

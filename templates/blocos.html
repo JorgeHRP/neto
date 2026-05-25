@@ -12,8 +12,8 @@
                 <input type="text" class="form-control" name="nome" placeholder="Nome" required>
             </div>
             <div class="col-md-3">
-                <select class="form-select" name="unidade" required>
-                    <option value="">Unidade...</option>
+                <select class="form-select" name="unidade">
+                    <option value="">Sem unidade</option>
                     <option value="m">m (metro)</option>
                     <option value="m²">m² (metro quadrado)</option>
                     <option value="m³">m³ (metro cúbico)</option>
@@ -25,7 +25,7 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <input type="number" class="form-control" name="preco_unitario" step="0.01" placeholder="Preço (€)" required>
+                <input type="number" class="form-control" name="preco_unitario" step="0.01" placeholder="Preço (€)">
             </div>
             <div class="col-md-1">
                 <button type="submit" class="btn btn-primary w-100">
@@ -44,8 +44,8 @@
         <div class="card h-100">
             <div class="card-body">
                 <h5>{{ bloco.nome }}</h5>
-                <p class="mb-1"><span class="badge bg-secondary">{{ bloco.unidade }}</span></p>
-                <p class="h4 text-success mb-3">€ {{ "%.2f"|format(bloco.preco_unitario) }}</p>
+                {% if bloco.unidade %}<p class="mb-1"><span class="badge bg-secondary">{{ bloco.unidade }}</span></p>{% endif %}
+                {% if bloco.preco_unitario %}<p class="h4 text-success mb-3">€ {{ "%.2f"|format(bloco.preco_unitario) }}</p>{% endif %}
                 
                 <form method="POST" action="{{ url_for('deletar_bloco', id=bloco.id) }}">
                     <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Deletar?')">

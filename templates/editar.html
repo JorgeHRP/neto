@@ -30,7 +30,7 @@
 {% endblock %}
 
 {% block content %}
-<h2 class="mb-4"><i class="fas fa-plus-circle"></i> Criar Orçamento</h2>
+<h2 class="mb-4"><i class="fas fa-edit"></i> Editar Orçamento <small class="text-muted fs-5">{{ orcamento.numero }}</small></h2>
 
 <form method="POST" id="formOrcamento">
     <div class="row">
@@ -42,24 +42,23 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label>Número</label>
-                            <input type="text" class="form-control" name="numero" placeholder="Deixe vazio para gerar automaticamente">
-                            <small class="text-muted">Ex: PR2025-001 ou deixe vazio</small>
+                            <input type="text" class="form-control" value="{{ orcamento.numero }}" readonly disabled>
                         </div>
                         <div class="col-md-6">
                             <label>Nome do Cliente *</label>
-                            <input type="text" class="form-control" name="nome_cliente" required>
+                            <input type="text" class="form-control" name="nome_cliente" value="{{ orcamento.nome_cliente }}" required>
                         </div>
                         <div class="col-md-6">
                             <label>Telefone</label>
-                            <input type="text" class="form-control" name="telefone">
+                            <input type="text" class="form-control" name="telefone" value="{{ orcamento.telefone or '' }}">
                         </div>
                         <div class="col-md-6">
                             <label>Local da Obra</label>
-                            <input type="text" class="form-control" name="local_obra">
+                            <input type="text" class="form-control" name="local_obra" value="{{ orcamento.local_obra or '' }}">
                         </div>
                         <div class="col-md-3">
                             <label>IVA (%)</label>
-                            <input type="number" class="form-control" name="iva" value="6" step="0.01" id="ivaInput">
+                            <input type="number" class="form-control" name="iva" value="{{ orcamento.iva }}" step="0.01" id="ivaInput">
                         </div>
                     </div>
                 </div>
@@ -85,13 +84,13 @@
                 <div class="card-body">
                     <h5 class="mb-3">Resumo</h5>
                     <p>Subtotal: <strong id="subtotal">€ 0,00</strong></p>
-                    <p>IVA (<span id="iva-percent">6</span>%): <strong id="valor-iva">€ 0,00</strong></p>
+                    <p>IVA (<span id="iva-percent">{{ orcamento.iva }}</span>%): <strong id="valor-iva">€ 0,00</strong></p>
                     <hr>
                     <h4>Total: <span class="text-success" id="total">€ 0,00</span></h4>
                     <button type="submit" class="btn btn-primary w-100 mt-3">
-                        <i class="fas fa-save"></i> Salvar Orçamento
+                        <i class="fas fa-save"></i> Guardar Alterações
                     </button>
-                    <a href="{{ url_for('home') }}" class="btn btn-outline-secondary w-100 mt-2">Cancelar</a>
+                    <a href="{{ url_for('ver_orcamento', id=orcamento.id) }}" class="btn btn-outline-secondary w-100 mt-2">Cancelar</a>
                 </div>
             </div>
         </div>
@@ -116,7 +115,7 @@
                         <a class="nav-link" data-bs-toggle="tab" href="#tab-novo">Criar do Zero</a>
                     </li>
                 </ul>
-                
+
                 <div class="tab-content">
                     <!-- Blocos Salvos -->
                     <div class="tab-pane fade show active" id="tab-salvo">
@@ -157,7 +156,7 @@
                         <p class="text-muted">Nenhum bloco salvo. Vá em "Blocos Salvos" para criar ou use a aba "Criar do Zero".</p>
                         {% endif %}
                     </div>
-                    
+
                     <!-- Criar do Zero -->
                     <div class="tab-pane fade" id="tab-novo">
                         <div class="mb-3">
@@ -199,34 +198,49 @@ const todosOsBlocos = {{ blocos | tojson | safe }};
 document.addEventListener('DOMContentLoaded', function() {
     modal = new bootstrap.Modal(document.getElementById('modalItem'));
     filtrarBlocos();
+
+    // Pre-populate blocos from existing orcamento data
+    const itensExistentes = {{ orcamento.itens | tojson | safe }};
+    const seen = {};
+    itensExistentes.forEach(item => {
+        if (!seen[item.bloco]) {
+            seen[item.bloco] = { titulo: item.bloco, itens: [] };
+            blocos.push(seen[item.bloco]);
+        }
+        seen[item.bloco].itens.push({
+            nome: item.nome,
+            desc: item.desc || '',
+            calc: item.calc || '',
+            valor: item.valor
+        });
+    });
+    renderBlocos();
 });
 
 function adicionarBloco() {
     const titulo = prompt('Título do Bloco:', `Bloco ${blocos.length + 1}`);
     if (!titulo) return;
-    
-    blocos.push({
-        titulo: titulo,
-        itens: []
-    });
+
+    blocos.push({ titulo: titulo, itens: [] });
     renderBlocos();
 }
 
 function renderBlocos() {
     const container = document.getElementById('blocos-container');
-    
+
     if (blocos.length === 0) {
         container.innerHTML = '<p class="text-muted text-center">Nenhum bloco. Clique em "Novo Bloco".</p>';
+        calcularTotais();
         return;
     }
-    
+
     container.innerHTML = blocos.map((bloco, blocoIdx) => `
         <div class="bloco-section">
             <div class="bloco-header">
                 <div>
                     <strong>${blocoIdx + 1}.</strong>
-                    <input type="text" value="${bloco.titulo}" 
-                           class="form-control form-control-sm d-inline-block bg-transparent text-white border-0" 
+                    <input type="text" value="${bloco.titulo}"
+                           class="form-control form-control-sm d-inline-block bg-transparent text-white border-0"
                            style="width: auto; min-width: 200px;"
                            onchange="blocos[${blocoIdx}].titulo = this.value">
                 </div>
@@ -239,8 +253,8 @@ function renderBlocos() {
                     </button>
                 </div>
             </div>
-            
-            ${bloco.itens.length === 0 ? '<p class="text-muted">Nenhum item neste bloco</p>' : 
+
+            ${bloco.itens.length === 0 ? '<p class="text-muted">Nenhum item neste bloco</p>' :
               bloco.itens.map((item, itemIdx) => `
                 <div class="item-box">
                     <div class="d-flex justify-content-between">
@@ -259,13 +273,13 @@ function renderBlocos() {
                 </div>
               `).join('')
             }
-            
+
             <div class="text-end mt-3">
                 <strong>Total do Bloco: <span class="text-success">€ ${calcularTotalBloco(bloco).toFixed(2)}</span></strong>
             </div>
         </div>
     `).join('');
-    
+
     calcularTotais();
 }
 
@@ -359,12 +373,9 @@ function confirmarItemNovo() {
     const desc = document.getElementById('itemDesc').value.trim();
     const calc = document.getElementById('itemCalc').value.trim();
     const valor = parseFloat(document.getElementById('itemValor').value);
-    
-    if (!nome || !valor) {
-        alert('Preencha título e valor!');
-        return;
-    }
-    
+
+    if (!nome || !valor) { alert('Preencha título e valor!'); return; }
+
     blocos[blocoAtual].itens.push({ nome, desc, calc, valor });
     renderBlocos();
     modal.hide();
@@ -402,7 +413,7 @@ function calcularTotais() {
     const ivaPercent = parseFloat(document.getElementById('ivaInput').value) || 0;
     const valorIva = subtotal * (ivaPercent / 100);
     const total = subtotal + valorIva;
-    
+
     document.getElementById('subtotal').textContent = `€ ${subtotal.toFixed(2)}`;
     document.getElementById('iva-percent').textContent = ivaPercent.toFixed(2);
     document.getElementById('valor-iva').textContent = `€ ${valorIva.toFixed(2)}`;
@@ -417,7 +428,7 @@ document.getElementById('formOrcamento').addEventListener('submit', function(e) 
         alert('Adicione pelo menos um bloco!');
         return;
     }
-    
+
     const itens = [];
     blocos.forEach(bloco => {
         bloco.itens.forEach(item => {
@@ -430,7 +441,7 @@ document.getElementById('formOrcamento').addEventListener('submit', function(e) 
             });
         });
     });
-    
+
     document.getElementById('itensJson').value = JSON.stringify(itens);
 });
 </script>

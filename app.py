@@ -69,10 +69,11 @@ def blocos():
 @login_required
 def novo_bloco():
     try:
+        preco_raw = request.form.get('preco_unitario', '').strip()
         data = {
             'nome': request.form['nome'],
-            'unidade': request.form['unidade'],
-            'preco_unitario': float(request.form['preco_unitario'])
+            'unidade': request.form.get('unidade', ''),
+            'preco_unitario': float(preco_raw) if preco_raw else 0
         }
         supabase.table('blocos_salvos').insert(data).execute()
         flash('Bloco salvo!', 'success')
@@ -170,6 +171,51 @@ def ver_orcamento(id):
         return redirect(url_for('home'))
     
     return render_template('ver.html', orcamento=orcamento)
+
+@app.route('/orcamento/<int:id>/editar', methods=['GET', 'POST'])
+@login_required
+def editar_orcamento(id):
+    try:
+        response = supabase.table('orcamentos').select('*').eq('id', id).execute()
+        orcamento = response.data[0] if response.data else None
+        if not orcamento:
+            flash('Orçamento não encontrado!', 'danger')
+            return redirect(url_for('home'))
+    except:
+        flash('Erro ao carregar!', 'danger')
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        try:
+            itens = json.loads(request.form['itens'])
+            total = sum(float(item['valor']) for item in itens)
+            iva_percent = float(request.form.get('iva', 6))
+            valor_iva = total * (iva_percent / 100)
+            total_com_iva = total + valor_iva
+
+            data = {
+                'nome_cliente': request.form['nome_cliente'],
+                'telefone': request.form.get('telefone', ''),
+                'local_obra': request.form.get('local_obra', ''),
+                'itens': itens,
+                'total': total,
+                'iva': iva_percent,
+                'total_com_iva': total_com_iva
+            }
+
+            supabase.table('orcamentos').update(data).eq('id', id).execute()
+            flash('Orçamento atualizado com sucesso!', 'success')
+            return redirect(url_for('ver_orcamento', id=id))
+        except Exception as e:
+            flash(f'Erro: {str(e)}', 'danger')
+
+    try:
+        response = supabase.table('blocos_salvos').select('*').order('nome').execute()
+        blocos = response.data or []
+    except:
+        blocos = []
+
+    return render_template('editar.html', orcamento=orcamento, blocos=blocos)
 
 @app.route('/orcamento/<int:id>/deletar', methods=['POST'])
 @login_required
